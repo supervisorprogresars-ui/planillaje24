@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Ingreso Vehicular</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    textarea {
+      height: 90px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      font-size: 18px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Planillaje de Ingreso Vehicular</h2>
+
+<label>Fecha</label>
+<input type="date" id="fecha">
+
+<label>Conjunto</label>
+<select id="conjunto">
+  <option value="">Seleccione...</option>
+  <option>Quintas del Portal</option>
+  <option>San Rafael</option>
+  <option>Virrey</option>
+  <option>Bosques de los Comuneros</option>
+  <option>Corinto</option>
+  <option>Torrecampo</option>
+  <option>Nueva Castilla</option>
+  <option>Faisanes</option>
+  <option>Casas 3</option>
+  <option>Alameda</option>
+  <option>Brisas</option>
+  <option>Fortaleza</option>
+</select>
+
+<label>Turno</label>
+<select id="turno">
+  <option value="">Seleccione...</option>
+  <option>Diurno</option>
+  <option>Nocturno</option>
+</select>
+
+<label>Placa</label>
+<input type="text" id="placa">
+
+<label>Propietario</label>
+<input type="text" id="propietario">
+
+<label>Celular</label>
+<input type="text" id="celular">
+
+<label>Hora Ingreso</label>
+<input type="time" id="hora_ingreso">
+
+<label>Hora Salida</label>
+<input type="time" id="hora_salida">
+
+<label>Visitante</label>
+<select id="visitante">
+  <option>No</option>
+  <option>Sí</option>
+</select>
+
+<label>Guarda que dio ingreso</label>
+<input type="text" id="guarda">
+
+<label>Novedades</label>
+<textarea id="novedades"></textarea>
+
+<button onclick="enviarDatos()">Enviar Planillaje</button>
+
+<script>
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzpXbpq-fbEmtZYwfrvNCh9494N8-66c2T0Y19uf0Tb7dIhGib62H-cz22gTM26sqOL/exec";
+
+function calcularTiempoTotal(hi, hs) {
+  if (hi && hs) {
+    const inicio = new Date(`1970-01-01T${hi}:00`);
+    const salida = new Date(`1970-01-01T${hs}:00`);
+    let diff = (salida - inicio) / 1000 / 60;
+
+    if (diff < 0) diff += 24 * 60;
+
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return `${h}h ${m}m`;
+  }
+  return "";
+}
+
+function enviarDatos() {
+
+  const fecha = document.getElementById("fecha").value;
+  const conjunto = document.getElementById("conjunto").value;
+  const turno = document.getElementById("turno").value;
+  const placa = document.getElementById("placa").value;
+  const propietario = document.getElementById("propietario").value;
+  const celular = document.getElementById("celular").value;
+  const hora_ingreso = document.getElementById("hora_ingreso").value;
+  const hora_salida = document.getElementById("hora_salida").value;
+  const visitante = document.getElementById("visitante").value;
+  const guarda = document.getElementById("guarda").value;
+  const novedades = document.getElementById("novedades").value;
+
+  const tiempo_total = calcularTiempoTotal(hora_ingreso, hora_salida);
+
+  const datos = {
+    fecha,
+    conjunto,
+    turno,
+    placa,
+    propietario,
+    celular,
+    hora_ingreso,
+    hora_salida,
+    tiempo_total,
+    visitante,
+    guarda,
+    novedades
+  };
+
+  fetch(WEBHOOK_URL, {
+    method: "POST",
+    body: JSON.stringify(datos),
+    headers: {"Content-Type": "application/json"}
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.status === "ok") {
+      alert("📌 Planillaje enviado correctamente");
+      location.reload();  // Limpia el formulario
+    } else {
+      alert("❌ Error al guardar");
+    }
+  })
+  .catch(() => {
+    alert("❌ Error de conexión");
+  });
+
+}
+</script>
+
+</body>
+</html>
