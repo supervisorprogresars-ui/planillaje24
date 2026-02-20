@@ -4,174 +4,228 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planillaje Vehicular</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-body{
-font-family: Arial;
-background:#f4f6f9;
-padding:20px;
+body { font-family: Arial; padding:20px; background:#f4f6f9; }
+h2 { text-align:center; }
+input, select, button {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
 }
-h2{
-text-align:center;
+button {
+  background:#1e88e5;
+  color:white;
+  border:none;
+  font-weight:bold;
 }
-label{
-font-weight:bold;
-display:block;
-margin-top:10px;
+button:hover { opacity:0.9; }
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
 }
-input,select,textarea,button{
-width:100%;
-padding:10px;
-margin-top:5px;
-border-radius:6px;
-border:1px solid #ccc;
-font-size:16px;
+th, td {
+  border:1px solid #ccc;
+  padding:5px;
+  font-size:12px;
 }
-button{
-background:#007BFF;
-color:white;
-border:none;
-margin-top:15px;
-font-size:18px;
-}
-button:hover{
-background:#0056b3;
-}
+th { background:#e3e3e3; }
+#cerrarBtn { background:red; margin-top:20px; }
 </style>
 </head>
+
 <body>
 
-<h2>Planillaje de Ingreso Vehicular</h2>
+<h2>Registro Vehicular Empresa</h2>
 
-<label>Fecha</label>
-<input type="date" id="fecha">
+<h3>Inicio de Turno</h3>
 
-<label>Conjunto</label>
 <select id="conjunto">
-<option>Quintas del Portal</option>
+<option value="">Seleccione Conjunto</option>
 <option>San Rafael</option>
 <option>Virrey</option>
-<option>Bosques de los Comuneros</option>
+<option>Quintas del Portal</option>
+<option>Bosques</option>
 <option>Corinto</option>
-<option>Torrecampo</option>
 <option>Nueva Castilla</option>
+<option>Torrecampo</option>
 <option>Faisanes</option>
 <option>Casas 3</option>
 <option>Alameda</option>
-<option>Brisas</option>
-<option>Fortaleza</option>
+<option>Brisas y Fortaleza</option>
 </select>
 
-<label>Placa</label>
-<input type="text" id="placa">
+<select id="turno">
+<option value="">Seleccione Turno</option>
+<option>Día</option>
+<option>Noche</option>
+</select>
 
-<label>Propietario</label>
-<input type="text" id="propietario">
+<input type="text" id="guarda" placeholder="Nombre del Guarda">
 
-<label>Celular</label>
-<input type="text" id="celular">
+<button onclick="iniciarTurno()">Iniciar Turno</button>
 
-<label>Hora Ingreso</label>
-<input type="time" id="hora_ingreso">
+<hr>
 
-<label>Hora Salida</label>
-<input type="time" id="hora_salida">
+<h3>Registrar Vehículo</h3>
 
-<label>Visitante</label>
+<input type="text" id="placa" placeholder="Placa">
+<input type="text" id="propietario" placeholder="Propietario">
+<input type="text" id="telefono" placeholder="Teléfono">
+<input type="text" id="parqueadero" placeholder="Parqueadero">
+
 <select id="visitante">
 <option>No</option>
-<option>Si</option>
+<option>Sí</option>
 </select>
 
-<label>Turno</label>
-<select id="turno">
-<option>Diurno</option>
-<option>Nocturno</option>
-</select>
+<input type="text" id="novedades" placeholder="Novedades">
 
-<label>Nombre del Guarda</label>
-<input type="text" id="guarda">
+<button onclick="registrarIngreso()">Registrar Ingreso</button>
 
-<label>Novedades</label>
-<textarea id="novedades"></textarea>
+<table id="tabla">
+<thead>
+<tr>
+<th>Placa</th>
+<th>Propietario</th>
+<th>Teléfono</th>
+<th>Parqueadero</th>
+<th>Visitante</th>
+<th>Ingreso</th>
+<th>Salida</th>
+<th>Novedades</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-<button onclick="enviar()">Enviar Planillaje</button>
+<button id="cerrarBtn" onclick="cerrarTurno()">
+Cerrar Turno y Descargar Planillaje
+</button>
 
 <script>
+let registros = [];
+let turnoActivo = false;
+let datosTurno = {};
 
-https://script.google.com/macros/s/AKfycbwRbMx5SKcPzCCI3fRQ1BiYEagUT32_xtCuWjfDRNu2UZuSyDiZqcpZ5qCNuD8d2vCf/exec
+function iniciarTurno(){
+  const conjunto = document.getElementById("conjunto").value;
+  const turno = document.getElementById("turno").value;
+  const guarda = document.getElementById("guarda").value;
 
-function calcularTiempo(ingreso, salida){
-if(!ingreso || !salida) return "";
+  if(!conjunto || !turno || !guarda){
+    alert("Complete todos los datos del turno");
+    return;
+  }
 
-const [h1,m1] = ingreso.split(":").map(Number);
-const [h2,m2] = salida.split(":").map(Number);
+  datosTurno = {
+    conjunto,
+    turno,
+    guarda,
+    fecha: new Date().toLocaleDateString(),
+    inicioTurno: new Date().toLocaleTimeString()
+  };
 
-let minutos1 = h1*60 + m1;
-let minutos2 = h2*60 + m2;
-
-if(minutos2 < minutos1){
-minutos2 += 24*60;
+  turnoActivo = true;
+  alert("Turno iniciado correctamente");
 }
 
-let total = minutos2 - minutos1;
-let horas = Math.floor(total/60);
-let minutos = total%60;
+function registrarIngreso(){
+  if(!turnoActivo){
+    alert("Debe iniciar turno primero");
+    return;
+  }
 
-return horas+"h "+minutos+"m";
+  const placa = document.getElementById("placa").value;
+  if(!placa){
+    alert("Ingrese la placa");
+    return;
+  }
+
+  const registro = {
+    placa,
+    propietario: document.getElementById("propietario").value,
+    telefono: document.getElementById("telefono").value,
+    parqueadero: document.getElementById("parqueadero").value,
+    visitante: document.getElementById("visitante").value,
+    ingreso: new Date().toLocaleTimeString(),
+    salida: "",
+    novedades: document.getElementById("novedades").value
+  };
+
+  registros.push(registro);
+  actualizarTabla();
+
+  document.getElementById("placa").value="";
+  document.getElementById("propietario").value="";
+  document.getElementById("telefono").value="";
+  document.getElementById("parqueadero").value="";
+  document.getElementById("novedades").value="";
 }
 
-function enviar(){
+function actualizarTabla(){
+  const tbody = document.querySelector("#tabla tbody");
+  tbody.innerHTML="";
 
-const fecha = document.getElementById("fecha").value;
-const conjunto = document.getElementById("conjunto").value;
-const placa = document.getElementById("placa").value;
-const propietario = document.getElementById("propietario").value;
-const celular = document.getElementById("celular").value;
-const hora_ingreso = document.getElementById("hora_ingreso").value;
-const hora_salida = document.getElementById("hora_salida").value;
-const visitante = document.getElementById("visitante").value;
-const turno = document.getElementById("turno").value;
-const guarda = document.getElementById("guarda").value;
-const novedades = document.getElementById("novedades").value;
-
-const tiempo_total = calcularTiempo(hora_ingreso, hora_salida);
-
-const datos = {
-fecha,
-conjunto,
-placa,
-propietario,
-celular,
-hora_ingreso,
-hora_salida,
-tiempo_total,
-visitante,
-turno,
-guarda,
-novedades
-};
-
-fetch(WEBHOOK_URL,{
-method:"POST",
-body:JSON.stringify(datos),
-headers:{"Content-Type":"application/json"}
-})
-.then(res=>res.json())
-.then(res=>{
-if(res.status==="ok"){
-alert("✅ Planillaje enviado correctamente");
-location.reload();
-}else{
-alert("❌ Error al guardar");
-}
-})
-.catch(()=>{
-alert("❌ Error de conexión");
-});
-
+  registros.forEach(r=>{
+    const fila = `
+      <tr>
+        <td>${r.placa}</td>
+        <td>${r.propietario}</td>
+        <td>${r.telefono}</td>
+        <td>${r.parqueadero}</td>
+        <td>${r.visitante}</td>
+        <td>${r.ingreso}</td>
+        <td>${r.salida}</td>
+        <td>${r.novedades}</td>
+      </tr>
+    `;
+    tbody.innerHTML += fila;
+  });
 }
 
+function cerrarTurno(){
+  if(registros.length === 0){
+    alert("No hay vehículos registrados.");
+    return;
+  }
+
+  const fechaActual = new Date();
+  const fecha = fechaActual.toLocaleDateString();
+
+  const datosExcel = registros.map(r => ({
+    Conjunto: datosTurno.conjunto,
+    Fecha: fecha,
+    Turno: datosTurno.turno,
+    Guarda: datosTurno.guarda,
+    Placa: r.placa,
+    Propietario: r.propietario,
+    Telefono: r.telefono,
+    Parqueadero: r.parqueadero,
+    Visitante: r.visitante,
+    Hora_Ingreso: r.ingreso,
+    Hora_Salida: r.salida,
+    Novedades: r.novedades
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(datosExcel);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Planillaje");
+
+  const nombreArchivo = `Planillaje_${datosTurno.conjunto}_${fecha}_${datosTurno.turno}.xlsx`;
+
+  XLSX.writeFile(wb, nombreArchivo);
+
+  alert("Planillaje descargado correctamente. Envíelo por WhatsApp.");
+
+  registros = [];
+  actualizarTabla();
+  turnoActivo = false;
+}
 </script>
 
 </body>
