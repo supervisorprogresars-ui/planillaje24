@@ -76,6 +76,8 @@ th { background:#e3e3e3; }
 <input type="text" id="placa" placeholder="Placa">
 <input type="text" id="propietario" placeholder="Propietario">
 <input type="text" id="telefono" placeholder="Teléfono">
+<input type="text" id="torre" placeholder="Torre">
+<input type="text" id="apartamento" placeholder="Apartamento">
 <input type="text" id="parqueadero" placeholder="Parqueadero">
 
 <select id="visitante">
@@ -93,10 +95,11 @@ th { background:#e3e3e3; }
 <th>Placa</th>
 <th>Propietario</th>
 <th>Teléfono</th>
+<th>Torre</th>
+<th>Apartamento</th>
 <th>Parqueadero</th>
 <th>Visitante</th>
 <th>Ingreso</th>
-<th>Salida</th>
 <th>Novedades</th>
 </tr>
 </thead>
@@ -150,10 +153,11 @@ function registrarIngreso(){
     placa,
     propietario: document.getElementById("propietario").value,
     telefono: document.getElementById("telefono").value,
+    torre: document.getElementById("torre").value,
+    apartamento: document.getElementById("apartamento").value,
     parqueadero: document.getElementById("parqueadero").value,
     visitante: document.getElementById("visitante").value,
     ingreso: new Date().toLocaleTimeString(),
-    salida: "",
     novedades: document.getElementById("novedades").value
   };
 
@@ -163,6 +167,8 @@ function registrarIngreso(){
   document.getElementById("placa").value="";
   document.getElementById("propietario").value="";
   document.getElementById("telefono").value="";
+  document.getElementById("torre").value="";
+  document.getElementById("apartamento").value="";
   document.getElementById("parqueadero").value="";
   document.getElementById("novedades").value="";
 }
@@ -177,10 +183,11 @@ function actualizarTabla(){
         <td>${r.placa}</td>
         <td>${r.propietario}</td>
         <td>${r.telefono}</td>
+        <td>${r.torre}</td>
+        <td>${r.apartamento}</td>
         <td>${r.parqueadero}</td>
         <td>${r.visitante}</td>
         <td>${r.ingreso}</td>
-        <td>${r.salida}</td>
         <td>${r.novedades}</td>
       </tr>
     `;
@@ -205,10 +212,11 @@ function cerrarTurno(){
     Placa: r.placa,
     Propietario: r.propietario,
     Telefono: r.telefono,
+    Torre: r.torre,
+    Apartamento: r.apartamento,
     Parqueadero: r.parqueadero,
     Visitante: r.visitante,
     Hora_Ingreso: r.ingreso,
-    Hora_Salida: r.salida,
     Novedades: r.novedades
   }));
 
