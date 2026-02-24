@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planillaje Vehicular</title>
+<title>Planillaje Vehicular Progresar Security</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
@@ -40,7 +40,7 @@ th { background:#e3e3e3; }
 
 <body>
 
-<h2>Registro Vehicular Empresa</h2>
+<h2>Planillaje Vehicular Progresar Security</h2>
 
 <h3>Inicio de Turno</h3>
 
@@ -56,7 +56,8 @@ th { background:#e3e3e3; }
 <option>Faisanes</option>
 <option>Casas 3</option>
 <option>Alameda</option>
-<option>Brisas y Fortaleza</option>
+<option>Brisas</option>
+<option>Fortaleza</option>
 </select>
 
 <select id="turno">
@@ -128,9 +129,7 @@ function iniciarTurno(){
   datosTurno = {
     conjunto,
     turno,
-    guarda,
-    fecha: new Date().toLocaleDateString(),
-    inicioTurno: new Date().toLocaleTimeString()
+    guarda
   };
 
   turnoActivo = true;
@@ -201,8 +200,14 @@ function cerrarTurno(){
     return;
   }
 
-  const fechaActual = new Date();
-  const fecha = fechaActual.toLocaleDateString();
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString();
+  const horaCompleta = ahora.getFullYear() + "-" +
+                       (ahora.getMonth()+1) + "-" +
+                       ahora.getDate() + "_" +
+                       ahora.getHours() + "-" +
+                       ahora.getMinutes() + "-" +
+                       ahora.getSeconds();
 
   const datosExcel = registros.map(r => ({
     Conjunto: datosTurno.conjunto,
@@ -224,11 +229,11 @@ function cerrarTurno(){
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Planillaje");
 
-  const nombreArchivo = `Planillaje_${datosTurno.conjunto}_${fecha}_${datosTurno.turno}.xlsx`;
+  const nombreArchivo = `Planillaje_${datosTurno.conjunto}_${datosTurno.turno}_${horaCompleta}.xlsx`;
 
   XLSX.writeFile(wb, nombreArchivo);
 
-  alert("Planillaje descargado correctamente. Envíelo por WhatsApp.");
+  alert("Planillaje descargado correctamente.");
 
   registros = [];
   actualizarTabla();
